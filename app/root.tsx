@@ -7,19 +7,28 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useLoaderData
 } from "@remix-run/react";
 import { StatsigSynchronousProvider } from "statsig-react";
+import Statsig from "statsig-node";
 
 export const links: LinksFunction = () => [
   ...(cssBundleHref ? [{ rel: "stylesheet", href: cssBundleHref }] : []),
 ];
 
+
+export async function loader() {
+  await Statsig.initialize("secret-key-here")
+  return Statsig.getClientInitializeResponse({ userID: "1" }, "client-key-here");
+}
+
 export default function App() {
+  const initalizeValues = useLoaderData();
   return (
     <StatsigSynchronousProvider
       sdkKey="client-key-here"
       user={{ userID: "1" }}
-      initializeValues={{ userID: "1" }}
+      initializeValues={initalizeValues}
     >
       <html lang="en">
         <head>
